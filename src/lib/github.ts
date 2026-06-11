@@ -1,7 +1,7 @@
 import { Octokit } from "@octokit/rest";
 
-/** API version that exposes the Enterprise Cost Center billing endpoints. */
-const COST_CENTER_API_VERSION = "2026-03-10";
+/** API version that exposes the Enterprise Cost Center and Enterprise Teams endpoints. */
+const GITHUB_API_VERSION = "2026-03-10";
 
 /** GitHub limits cost-center resource mutations to 50 entries per request. */
 const RESOURCE_BATCH_SIZE = 50;
@@ -44,7 +44,7 @@ export class GitHubClient {
   }
 
   private costCenterHeaders() {
-    return { "X-GitHub-Api-Version": COST_CENTER_API_VERSION };
+    return { "X-GitHub-Api-Version": GITHUB_API_VERSION };
   }
 
   // ---- Cost centers -------------------------------------------------------
@@ -126,7 +126,11 @@ export class GitHubClient {
   async listEnterpriseTeams(enterprise: string): Promise<Team[]> {
     const teams = await this.octokit.paginate(
       "GET /enterprises/{enterprise}/teams",
-      { enterprise, per_page: 100 },
+      {
+        enterprise,
+        per_page: 100,
+        headers: { "X-GitHub-Api-Version": GITHUB_API_VERSION },
+      },
     );
     return (teams as Array<{ slug: string; name?: string }>).map((team) => ({
       slug: team.slug,
@@ -137,7 +141,12 @@ export class GitHubClient {
   async listEnterpriseTeamMembers(enterprise: string, teamSlug: string): Promise<string[]> {
     const memberships = await this.octokit.paginate(
       "GET /enterprises/{enterprise}/teams/{team_slug}/memberships",
-      { enterprise, team_slug: teamSlug, per_page: 100 },
+      {
+        enterprise,
+        team_slug: teamSlug,
+        per_page: 100,
+        headers: { "X-GitHub-Api-Version": GITHUB_API_VERSION },
+      },
     );
     return (memberships as Array<{ login?: string; user?: { login: string } }>)
       .map((m) => m.login ?? m.user?.login)

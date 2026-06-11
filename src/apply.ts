@@ -37,24 +37,39 @@ async function resolveTeamMembers(
 
 /**
  * Phase 1: resolve every team's members into flat (user, costCenter, team) tuples.
+ *
+ * A team that cannot be resolved (e.g. a system-managed enterprise team whose
+ * membership endpoint returns 404) is reported and skipped rather than aborting
+ * the whole run.
  */
 async function resolveAssignments(
   client: GitHubClient,
   enterprise: string,
   mapping: { teams: TeamEntry[] },
   defaultCostCenter: string,
-): Promise<Assignment[]> {
+): Promise<{ assignments: Assignment[]; failedTeams: string[]; taintedCostCenters: Set<string> }> {
   const assignments: Assignment[] = [];
+  const failedTeams: string[] = [];
+  // Cost centers targeted by a team we could not resolve. They are skipped in
+  // the sync phase: with an incomplete member list we could wrongly remove
+  // legitimate users.
+  const taintedCostCenters = new Set<string>();
   for (const entry of mapping.teams) {
     const costCenter = entry.costCenter ?? defaultCostCenter;
     const team = teamKey(entry);
-    const members = await resolveTeamMembers(client, enterprise, entry);
-    console.log(`- ${team} -> "${costCenter}" (${members.length} member(s))`);
-    for (const user of members) {
-      assignments.push({ user, costCenter, team });
+    try {
+      const members = await resolveTeamMembers(client, enterprise, entry);
+      console.log(`- ${team} -> "${costCenter}" (${members.length} member(s))`);
+      for (const user of members) {
+        assignments.push({ user, costCenter, team });
+      }
+    } catch (error) {
+      failedTeams.push(team);
+      taintedCostCenters.add(costCenter);
+      console.error(`- ${team}: SKIPPED, could not resolve members: ${(error as Error).message}`);
     }
   }
-  return assignments;
+  return { assignments, failedTeams, taintedCostCenters };
 }
 
 /**
@@ -164,7 +179,7 @@ async function main(): Promise<void> {
 
   // Phase 1: resolve team members.
   console.log("\nResolving team members...");
-  const assignments = await resolveAssignments(
+  const { assignments, failedTeams, taintedCostCenters } = await resolveAssignments(
     client,
     settings.enterprise,
     mapping,
@@ -186,12 +201,22 @@ async function main(): Promise<void> {
     `\nResolved ${desired.size} user assignment(s) across ` +
       `${desiredByCostCenter.size} cost center(s).`,
   );
+  if (taintedCostCenters.size > 0) {
+    console.warn(
+      `\nSkipping ${taintedCostCenters.size} cost center(s) because one or more of ` +
+        `their teams could not be resolved (avoids removing valid members): ` +
+        `${[...taintedCostCenters].map((c) => `"${c}"`).join(", ")}`,
+    );
+  }
 
   // Phase 4: sync each referenced cost center exactly once.
   const costCenters = await client.listCostCenters(settings.enterprise);
-  let failures = 0;
+  let failures = failedTeams.length;
 
   for (const [name, desiredUsers] of desiredByCostCenter) {
+    if (taintedCostCenters.has(name)) {
+      continue;
+    }
     console.log(`\n- Cost center "${name}" (desired ${desiredUsers.size} user(s))`);
     try {
       const costCenter = await resolveOrCreateCostCenter(
@@ -235,8 +260,12 @@ async function main(): Promise<void> {
     }
   }
 
+  const processed = [...desiredByCostCenter.keys()].filter(
+    (name) => !taintedCostCenters.has(name),
+  ).length;
   console.log(
-    `\nDone. ${desiredByCostCenter.size} cost center(s) processed, ${failures} failure(s).`,
+    `\nDone. ${processed} cost center(s) processed, ` +
+      `${failedTeams.length} team(s) skipped, ${failures} failure(s).`,
   );
   if (failures > 0) {
     process.exitCode = 1;

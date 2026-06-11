@@ -108,8 +108,9 @@ The token's owner must hold a billing-capable role on the enterprise:
 ### Configure the repository secret
 
 1. Create a **classic PAT** with the scopes above, owned by an enterprise owner or billing manager.
-2. In this repository, go to **Settings → Secrets and variables → Actions → New repository secret**.
-3. Name it **`COST_CENTER_PAT`** and paste the token value.
+2. If your organization or enterprise enforces **SAML SSO**, open the token and **authorize it for the organization** (token page → *Configure SSO* → *Authorize*). Without this, the workflow's git push and API calls fail with `403`.
+3. In this repository, go to **Settings → Secrets and variables → Actions → New repository secret**.
+4. Name it **`COST_CENTER_PAT`** and paste the token value.
 
 Both workflows read the token from `secrets.COST_CENTER_PAT`. The discovery workflow also opens its pull request with this PAT, so it must include the `repo` scope. (The built-in `GITHUB_TOKEN` is not used for the PR because GitHub blocks Actions from creating pull requests unless explicitly allowed in repository/organization settings.)
 
