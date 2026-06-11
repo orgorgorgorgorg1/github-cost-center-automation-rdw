@@ -110,4 +110,4 @@ teams:
   - type: organization
     org: orgorgorgorgorg1
     team: teamx
-    costCenter: Tyrone123
+    costCenter: Default-Cost-Center
