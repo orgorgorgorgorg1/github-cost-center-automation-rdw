@@ -14,7 +14,7 @@ flowchart LR
     end
 
     D[discover-teams.yml<br/>manual] -->|opens PR with adds/removes| M
-    M -->|push to main| A[apply-cost-centers.yml]
+    M -->|read by| A[apply-cost-centers.yml<br/>manual]
     A -->|Octokit REST calls| GH[(GitHub Enterprise<br/>Cost Centers)]
     GH -.->|list live teams| D
 ```
@@ -23,7 +23,7 @@ flowchart LR
    - Teams that exist but are **not yet mapped** are added, defaulting to the configured default cost center.
    - Teams in the mapping that **no longer exist** are removed.
    - Any drift is proposed as a **pull request** for review.
-2. **Apply workflow** (`apply-cost-centers.yml`, on change) — triggered when `mappings/team-cost-centers.yml` (or `config/settings.yml`) changes on `main`. For each mapping entry it:
+2. **Apply workflow** (`apply-cost-centers.yml`, manual) — manually dispatched from the Actions tab (with an optional `dry-run` input). For each mapping entry it:
    - Resolves the team's current members.
    - Finds the target cost center, **creating it if it does not exist**.
    - Synchronizes membership bidirectionally — adds members missing from the cost center and removes users who are no longer in the team.

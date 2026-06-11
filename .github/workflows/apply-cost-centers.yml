@@ -1,13 +1,8 @@
 name: Apply cost centers
 
-# Runs whenever the team-to-cost-center mapping changes on the default branch,
-# and can be triggered manually (with an optional dry-run preview).
+# Manually triggered. Applies the team-to-cost-center mapping to the enterprise
+# cost centers, with an optional dry-run preview.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "mappings/team-cost-centers.yml"
-      - "config/settings.yml"
   workflow_dispatch:
     inputs:
       dry-run:
