@@ -2,6 +2,9 @@
 
 Manage [GitHub Enterprise Cost Centers](https://docs.github.com/en/enterprise-cloud@latest/rest/billing/cost-centers) from a single, version-controlled mapping of **GitHub teams → cost centers**. All logic calls the GitHub REST API directly via [Octokit](https://octokit.github.io/rest.js/) — there is no dependency on any third-party CLI extension, so the full behavior is in this repository.
 
+> [!IMPORTANT]
+> **A user can belong to only one cost center.** GitHub does not allow a single user to be assigned to multiple cost centers. If a user is a member of teams that map to **different** cost centers, the apply step detects this conflict, **refuses to run, and makes no changes** — it exits with an error listing the affected user(s) and the conflicting teams. Resolve the conflict (remove the user from all but one of the conflicting teams, or point those teams at the same cost center) before re-running. Multiple teams that point at the *same* cost center are fine; their members are merged.
+
 ## How it works
 
 The repository is the source of truth. Two GitHub Actions workflows keep the mapping and the live cost-center membership aligned:
