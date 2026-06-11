@@ -1,0 +1,12 @@
+# Global settings for the cost-center automation.
+#
+# enterprise:        The slug of your GitHub Enterprise (as it appears in the URL).
+# defaultCostCenter: Cost center assigned to teams that have no explicit mapping.
+#                    It is created automatically if it does not exist.
+# organizations:     Organizations whose teams are scanned by the discovery workflow.
+#                    Enterprise-level teams are always scanned in addition to these.
+
+enterprise: my-enterprise
+defaultCostCenter: Default-Cost-Center
+organizations:
+  - my-org

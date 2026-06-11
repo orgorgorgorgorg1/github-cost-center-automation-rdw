@@ -1,0 +1,50 @@
+name: Apply cost centers
+
+# Runs whenever the team-to-cost-center mapping changes on the default branch,
+# and can be triggered manually (with an optional dry-run preview).
+on:
+  push:
+    branches: [main]
+    paths:
+      - "mappings/team-cost-centers.yml"
+      - "config/settings.yml"
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Preview changes without writing to cost centers"
+        type: boolean
+        default: false
+
+concurrency:
+  group: apply-cost-centers
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Apply mapping to cost centers
+        env:
+          # Classic PAT with manage_billing:enterprise, read:enterprise, read:org.
+          GH_TOKEN: ${{ secrets.COST_CENTER_PAT }}
+        run: |
+          if [ "${{ inputs.dry-run }}" = "true" ]; then
+            npm run apply -- --dry-run
+          else
+            npm run apply
+          fi

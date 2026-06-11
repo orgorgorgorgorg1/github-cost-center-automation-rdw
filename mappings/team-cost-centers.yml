@@ -1,0 +1,27 @@
+# Central mapping between GitHub teams and Enterprise Cost Centers.
+#
+# Each entry assigns the members of one team to one cost center.
+#   type:       "enterprise" or "organization".
+#   org:        Organization slug. Required only when type is "organization".
+#   team:       Team slug.
+#   costCenter: (optional) Cost center name. When omitted, the default cost
+#               center from config/settings.yml is used.
+#
+# This file is the source of truth. The discovery workflow keeps it in sync with
+# the teams that actually exist; the apply workflow pushes its contents to the
+# Enterprise Cost Center membership via the GitHub REST API.
+
+teams:
+  - type: enterprise
+    team: platform-engineering
+    costCenter: Platform Engineering
+
+  - type: organization
+    org: my-org
+    team: frontend
+    costCenter: Frontend Budget
+
+  - type: organization
+    org: my-org
+    team: data-science
+    # No costCenter -> falls back to the default cost center.

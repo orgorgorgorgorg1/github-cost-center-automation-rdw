@@ -1,0 +1,56 @@
+name: Discover teams
+
+# Reconciles the central mapping with the teams that actually exist.
+# New teams are added (defaulted to the default cost center) and deleted teams
+# are removed. Changes are proposed as a pull request for review.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: discover-teams
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Discover team drift
+        id: discover
+        env:
+          # Classic PAT with read:enterprise and read:org to list teams.
+          GH_TOKEN: ${{ secrets.COST_CENTER_PAT }}
+        run: npm run discover
+
+      - name: Create pull request
+        if: steps.discover.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          # GITHUB_TOKEN is sufficient to open the PR (contents + pull-requests).
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/team-cost-center-drift
+          delete-branch: true
+          commit-message: "chore: sync team cost-center mapping with live teams"
+          title: "Sync team cost-center mapping"
+          body: |
+            Automated reconciliation of the team-to-cost-center mapping with the
+            teams that currently exist in the enterprise and configured orgs.
+
+            ${{ steps.discover.outputs.summary }}
+
+            Review the changes and merge to apply them via the **Apply cost centers** workflow.

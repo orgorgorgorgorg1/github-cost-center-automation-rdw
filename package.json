@@ -1,0 +1,26 @@
+{
+  "name": "github-cost-center-automation",
+  "version": "1.0.0",
+  "description": "Manage GitHub Enterprise Cost Centers from a central team-to-cost-center mapping using the GitHub REST API.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "apply": "tsx src/apply.ts",
+    "discover": "tsx src/discover.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.0.2",
+    "yaml": "^2.5.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4"
+  }
+}
