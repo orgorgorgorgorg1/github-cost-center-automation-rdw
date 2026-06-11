@@ -6,7 +6,7 @@
 # organizations:     Organizations whose teams are scanned by the discovery workflow.
 #                    Enterprise-level teams are always scanned in addition to these.
 
-enterprise: TyroneTyrone
+enterprise: my-enterprise
 defaultCostCenter: Default-Cost-Center
 organizations:
-  - orgorgorgorgorg1
+  - my-org
