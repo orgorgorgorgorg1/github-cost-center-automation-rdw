@@ -133,6 +133,7 @@ npm run typecheck
 
 ## Operational notes
 
+- **One user, one cost center.** GitHub allows a user to belong to only a single cost center. The apply step resolves the *entire* mapping into one `user → cost center` decision before writing anything. If a user is placed in two different cost centers by two different teams, the run **fails and reports the conflict** (the user and the teams involved) without making any changes. Resolve it by removing the user from all but one conflicting team, or by mapping those teams to the same cost center. Multiple teams pointing at the *same* cost center are fine — their members are unioned.
 - **Adding a team to a cost center** automatically reassigns its members from any previous cost center (per GitHub's API behavior).
-- **Bidirectional sync**: the apply step removes users from a cost center when they are no longer in the mapped team. Keep the mapping accurate to avoid unintended removals — use `--dry-run` first.
-- **Manual dispatch** of the apply workflow supports a `dry-run` input for safe previews.
+- **Bidirectional sync**: membership is computed globally, then each cost center is synced exactly once — users no longer desired in a cost center are removed. Keep the mapping accurate to avoid unintended removals — use `--dry-run` first.
+- **Manual dispatch** of the apply workflow supports a `dry-run` input for safe previews (conflicts are reported in dry-run too).
