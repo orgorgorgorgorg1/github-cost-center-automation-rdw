@@ -103,7 +103,7 @@ The token's owner must hold a billing-capable role on the enterprise:
 | `manage_billing:enterprise` | Reading, creating, and updating cost centers and their membership. |
 | `read:enterprise` | Listing enterprise teams and their members. |
 | `read:org` | Listing organization teams and their members. |
-| `repo` | Only if you choose to open the discovery PR with this PAT instead of the built-in `GITHUB_TOKEN`. |
+| `repo` | Allows the discovery workflow to push the branch and open the pull request. (A user PAT is used because the built-in `GITHUB_TOKEN` is blocked from creating PRs by default.) |
 
 ### Configure the repository secret
 
@@ -111,7 +111,7 @@ The token's owner must hold a billing-capable role on the enterprise:
 2. In this repository, go to **Settings → Secrets and variables → Actions → New repository secret**.
 3. Name it **`COST_CENTER_PAT`** and paste the token value.
 
-Both workflows read the token from `secrets.COST_CENTER_PAT`. The discovery workflow opens its pull request using the built-in `GITHUB_TOKEN` (`contents: write` + `pull-requests: write`), so the PAT does not need the `repo` scope unless you change that.
+Both workflows read the token from `secrets.COST_CENTER_PAT`. The discovery workflow also opens its pull request with this PAT, so it must include the `repo` scope. (The built-in `GITHUB_TOKEN` is not used for the PR because GitHub blocks Actions from creating pull requests unless explicitly allowed in repository/organization settings.)
 
 ## Running locally
 

@@ -41,8 +41,10 @@ jobs:
         if: steps.discover.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          # GITHUB_TOKEN is sufficient to open the PR (contents + pull-requests).
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Classic PAT (repo scope) opens the PR; a user PAT is not subject to
+          # the "Actions is not permitted to create pull requests" restriction
+          # that blocks the built-in GITHUB_TOKEN.
+          token: ${{ secrets.COST_CENTER_PAT }}
           branch: chore/team-cost-center-drift
           delete-branch: true
           commit-message: "chore: sync team cost-center mapping with live teams"
