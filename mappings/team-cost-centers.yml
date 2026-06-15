@@ -22,7 +22,7 @@ teams:
   - type: organization
     org: orgorgorgorgorg1
     team: asml-migration-example-blabla-contributor
-    costCenter: Default-Cost-Center
+    costCenter: ASML
   - type: organization
     org: orgorgorgorgorg1
     team: asml-migration-example-blabla-read
