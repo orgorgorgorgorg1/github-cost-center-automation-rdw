@@ -5,8 +5,15 @@
 #                    It is created automatically if it does not exist.
 # organizations:     Organizations whose teams are scanned by the discovery workflow.
 #                    Enterprise-level teams are always scanned in addition to these.
+# onConflict:        How to handle a user claimed by more than one cost center:
+#                      stop              - report the conflict and abort before any
+#                                          write (default).
+#                      defaultCostCenter - assign the user to defaultCostCenter.
+#                      firstMatch        - assign the user to the first cost center
+#                                          detected.
 
 enterprise: TyroneTyrone
 defaultCostCenter: Default-Cost-Center
+onConflict: firstMatch
 organizations:
   - orgorgorgorgorg1

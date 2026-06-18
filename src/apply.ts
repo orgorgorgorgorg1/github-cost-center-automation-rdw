@@ -130,6 +130,33 @@ function reportConflicts(conflicts: Conflict[]): void {
 }
 
 /**
+ * Auto-resolve conflicts according to the configured `onConflict` mode and fold
+ * the chosen cost center for each conflicted user into the desired state.
+ *
+ *   defaultCostCenter - assign the user to the default cost center.
+ *   firstMatch        - assign the user to the first cost center detected
+ *                       (claims are recorded in detection order).
+ *
+ * The affected users are reported as a warning; the run then continues.
+ */
+function resolveConflicts(
+  desired: Map<string, string>,
+  conflicts: Conflict[],
+  mode: "defaultCostCenter" | "firstMatch",
+  defaultCostCenter: string,
+): void {
+  console.warn(
+    `\nWarning: ${conflicts.length} user(s) are claimed by multiple cost centers; ` +
+      `resolving via onConflict="${mode}".`,
+  );
+  for (const { user, claims } of conflicts) {
+    const costCenter = mode === "defaultCostCenter" ? defaultCostCenter : claims[0].costCenter;
+    desired.set(user, costCenter);
+    console.warn(`  - ${user} -> "${costCenter}"`);
+  }
+}
+
+/**
  * Phase 3: invert the per-user decision into the desired membership of each
  * cost center referenced by the mapping.
  */
@@ -189,10 +216,13 @@ async function main(): Promise<void> {
   // Phase 2: build the global user -> cost center decision and detect conflicts.
   const { desired, conflicts } = buildDesiredState(assignments);
   if (conflicts.length > 0) {
-    reportConflicts(conflicts);
-    // Fail before any write so conflicts are resolved by a human.
-    process.exitCode = 1;
-    return;
+    if (settings.onConflict === "stop") {
+      reportConflicts(conflicts);
+      // Fail before any write so conflicts are resolved by a human.
+      process.exitCode = 1;
+      return;
+    }
+    resolveConflicts(desired, conflicts, settings.onConflict, settings.defaultCostCenter);
   }
 
   // Phase 3: invert into desired membership per cost center.
