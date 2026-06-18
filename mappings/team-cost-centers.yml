@@ -13,15 +13,101 @@
 
 teams:
   - type: enterprise
-    team: platform-engineering
-    costCenter: Platform Engineering
-
+    team: ent:copilot
+    costCenter: Default-Cost-Center
   - type: organization
-    org: my-org
-    team: frontend
-    costCenter: Frontend Budget
-
+    org: orgorgorgorgorg1
+    team: asml-migration-example-blabla-admin
+    costCenter: Default-Cost-Center
   - type: organization
-    org: my-org
-    team: data-science
-    # No costCenter -> falls back to the default cost center.
+    org: orgorgorgorgorg1
+    team: asml-migration-example-blabla-contributor
+    costCenter: ASML
+  - type: organization
+    org: orgorgorgorgorg1
+    team: asml-migration-example-blabla-read
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: asml-migration-example-copy-admin
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: asml-migration-example-copy-contributor
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: asml-migration-example-copy-read
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: asml-migration-example-copycopy-admin
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: asml-migration-example-copycopy-contributor
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: asml-migration-example-copycopy-read
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: bco_admin
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: bco_contributor
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: bco_reader
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: dldldl
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: example-team
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: groupteam
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: groupteam2
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: groupteam3
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: groupteam4
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: pet
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: pet-admins
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: pet-contributers
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: qqqq
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: ssss
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
+    team: teamx
+    costCenter: Default-Cost-Center
