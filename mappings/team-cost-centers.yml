@@ -105,6 +105,10 @@ teams:
     costCenter: Default-Cost-Center
   - type: organization
     org: orgorgorgorgorg1
+    team: rdw-test-team
+    costCenter: Default-Cost-Center
+  - type: organization
+    org: orgorgorgorgorg1
     team: ssss
     costCenter: Default-Cost-Center
   - type: organization
