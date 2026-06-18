@@ -231,6 +231,14 @@ async function main(): Promise<void> {
     `\nResolved ${desired.size} user assignment(s) across ` +
       `${desiredByCostCenter.size} cost center(s).`,
   );
+  console.log("\nDesired cost center membership:");
+  for (const [name, users] of desiredByCostCenter) {
+    const sorted = [...users].sort((a, b) => a.localeCompare(b));
+    console.log(`  - "${name}" (${sorted.length} user(s)):`);
+    for (const user of sorted) {
+      console.log(`      ${user}`);
+    }
+  }
   if (taintedCostCenters.size > 0) {
     console.warn(
       `\nSkipping ${taintedCostCenters.size} cost center(s) because one or more of ` +

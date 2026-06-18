@@ -1,12 +1,17 @@
 name: Apply cost centers
 
-# Manually triggered. Applies the team-to-cost-center mapping to the enterprise
-# cost centers, with an optional dry-run preview.
+# Manually triggered. First computes a preview of the impact (desired cost
+# center membership + the adds/removes that would be made), then waits for a
+# manual approval before applying the mapping to the enterprise cost centers.
+#
+# The approval gate is the `cost-centers-apply` environment: the `apply` job
+# cannot start until a required reviewer approves it in the Actions UI. See the
+# README ("Manual approval gate") for the one-time repository configuration.
 on:
   workflow_dispatch:
     inputs:
       dry-run:
-        description: "Preview changes without writing to cost centers"
+        description: "Preview only — run the plan and skip the apply step entirely"
         type: boolean
         default: false
 
@@ -18,8 +23,56 @@ permissions:
   contents: read
 
 jobs:
-  apply:
+  # Stage 1: compute and publish the impact preview. This always runs a
+  # dry-run, so it never writes to cost centers. The output is written to the
+  # job summary so a reviewer can inspect it before approving the apply.
+  plan:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compute impact preview (dry-run)
+        env:
+          # Classic PAT with manage_billing:enterprise, read:enterprise, read:org.
+          GH_TOKEN: ${{ secrets.COST_CENTER_PAT }}
+        run: |
+          set -o pipefail
+          npm run apply -- --dry-run 2>&1 | tee preview.txt
+          {
+            echo '## Cost center apply — impact preview'
+            echo ''
+            echo 'Review the desired membership and the planned changes below, then'
+            echo 'approve the **apply** job to apply them (or reject to make no changes).'
+            echo ''
+            echo '```text'
+            cat preview.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: cost-center-apply-preview
+          path: preview.txt
+
+  # Stage 2: apply for real. Gated by the `cost-centers-apply` environment,
+  # which must have required reviewers configured so the job pauses for a
+  # manual approval. Skipped entirely when the run was requested as dry-run.
+  apply:
+    needs: plan
+    if: ${{ inputs.dry-run != true }}
+    runs-on: ubuntu-latest
+    environment: cost-centers-apply
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,9 +90,4 @@ jobs:
         env:
           # Classic PAT with manage_billing:enterprise, read:enterprise, read:org.
           GH_TOKEN: ${{ secrets.COST_CENTER_PAT }}
-        run: |
-          if [ "${{ inputs.dry-run }}" = "true" ]; then
-            npm run apply -- --dry-run
-          else
-            npm run apply
-          fi
+        run: npm run apply
